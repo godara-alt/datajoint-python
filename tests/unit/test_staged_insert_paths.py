@@ -1,6 +1,5 @@
 """Staged insert path and store-name regression tests."""
 
-import importlib
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -46,14 +45,12 @@ def fake_table(*, class_name, table_name, store_name, config):
 def test_staged_insert_uses_sql_table_name_and_resolved_store(
     monkeypatch, class_name, table_name, declared_store, expected_store
 ):
-    staged_module = importlib.import_module("datajoint.staged_insert")
-
     config = FakeConfig()
     backend = MagicMock()
     backend.fs.isdir.return_value = False
     backend.size.return_value = 12
     get_backend = MagicMock(return_value=backend)
-    monkeypatch.setattr(staged_module, "get_store_backend", get_backend)
+    monkeypatch.setattr(StagedInsert, "_field_backend", get_backend)
 
     staged = StagedInsert(fake_table(class_name=class_name, table_name=table_name, store_name=declared_store, config=config))
     staged.rec["id"] = 7
@@ -62,7 +59,7 @@ def test_staged_insert_uses_sql_table_name_and_resolved_store(
     assert path.startswith(f"_schema/test_schema/{table_name}/id=7/")
     assert selected_backend is backend
     assert staged._staged_objects["data"]["store_name"] == expected_store
-    get_backend.assert_called_with(expected_store, config=config)
+    get_backend.assert_called_with(expected_store)
 
     metadata = staged._compute_metadata("data")
     assert metadata["store"] == expected_store
@@ -70,14 +67,12 @@ def test_staged_insert_uses_sql_table_name_and_resolved_store(
 
 
 def test_default_store_change_does_not_repoint_staged_object(monkeypatch):
-    staged_module = importlib.import_module("datajoint.staged_insert")
-
     config = FakeConfig(default="local")
     backend = MagicMock()
     backend.fs.isdir.return_value = False
     backend.size.return_value = 3
     get_backend = MagicMock(return_value=backend)
-    monkeypatch.setattr(staged_module, "get_store_backend", get_backend)
+    monkeypatch.setattr(StagedInsert, "_field_backend", get_backend)
 
     staged = StagedInsert(fake_table(class_name="Recording", table_name="recording", store_name="", config=config))
     staged.rec["id"] = 8
