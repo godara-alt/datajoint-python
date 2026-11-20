@@ -192,6 +192,7 @@ class Blob:
         blob_format = self.read_zero_terminated_string()
         if blob_format in ("mYm", "dj0"):
             return self.read_blob(n_bytes=len(self._blob) - self._pos)
+        raise DataJointError(f"Unknown blob format: {blob_format!r}. Expected mYm or dj0.")
 
     def read_blob(self, n_bytes=None):
         start = self._pos
@@ -648,6 +649,11 @@ def unpack(blob: bytes, squeeze: bool = False):
     -------
     any
         Deserialized Python object.
+
+    Raises
+    ------
+    DataJointError
+        If the blob does not use a recognized serialization format.
 
     Examples
     --------
