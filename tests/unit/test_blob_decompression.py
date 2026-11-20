@@ -75,7 +75,7 @@ def test_corrupt_stream_is_rejected():
 
 @pytest.mark.parametrize(
     "payload",
-    [b"", b"garbage\0data", b"no terminator here", b"mYm", b"dj0"],
+    [b"", b"garbage\0data", b"no terminator here", b"mYm", b"dj0", b"\xff\xfe\0data"],
 )
 def test_unknown_blob_format_is_rejected(payload):
     with pytest.raises(DataJointError, match="Unknown blob format"):

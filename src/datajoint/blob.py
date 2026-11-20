@@ -189,10 +189,10 @@ class Blob:
             blob_size = self.read_value()
             self._blob = compression[prefix](self._blob[self._pos :], int(blob_size))
             self._pos = 0
-        blob_format = self.read_zero_terminated_string()
-        if blob_format in ("mYm", "dj0"):
-            return self.read_blob(n_bytes=len(self._blob) - self._pos)
-        raise DataJointError(f"Unknown blob format: {blob_format!r}. Expected mYm or dj0.")
+        if self._blob[self._pos : self._pos + 4] not in (b"mYm\0", b"dj0\0"):
+            raise DataJointError("Unknown blob format. Expected mYm or dj0.")
+        self._pos += 4
+        return self.read_blob(n_bytes=len(self._blob) - self._pos)
 
     def read_blob(self, n_bytes=None):
         start = self._pos
