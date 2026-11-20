@@ -55,9 +55,7 @@ def test_staged_insert_uses_sql_table_name_and_resolved_store(
     get_backend = MagicMock(return_value=backend)
     monkeypatch.setattr(staged_module, "get_store_backend", get_backend)
 
-    staged = StagedInsert(
-        fake_table(class_name=class_name, table_name=table_name, store_name=declared_store, config=config)
-    )
+    staged = StagedInsert(fake_table(class_name=class_name, table_name=table_name, store_name=declared_store, config=config))
     staged.rec["id"] = 7
     path, selected_backend = staged._resolve_field("data", ".dat")
 
