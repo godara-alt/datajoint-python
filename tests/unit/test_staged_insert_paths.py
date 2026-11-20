@@ -1,5 +1,6 @@
 """Staged insert path and store-name regression tests."""
 
+import importlib
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -45,7 +46,7 @@ def fake_table(*, class_name, table_name, store_name, config):
 def test_staged_insert_uses_sql_table_name_and_resolved_store(
     monkeypatch, class_name, table_name, declared_store, expected_store
 ):
-    from datajoint import staged_insert as staged_module
+    staged_module = importlib.import_module("datajoint.staged_insert")
 
     config = FakeConfig()
     backend = MagicMock()
@@ -71,7 +72,7 @@ def test_staged_insert_uses_sql_table_name_and_resolved_store(
 
 
 def test_default_store_change_does_not_repoint_staged_object(monkeypatch):
-    from datajoint import staged_insert as staged_module
+    staged_module = importlib.import_module("datajoint.staged_insert")
 
     config = FakeConfig(default="local")
     backend = MagicMock()
