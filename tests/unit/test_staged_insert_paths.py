@@ -91,3 +91,8 @@ def test_default_store_change_does_not_repoint_staged_object(monkeypatch):
     metadata = staged._compute_metadata("data")
     assert metadata["store"] == "local"
     assert get_backend.call_args.args[0] == "local"
+
+    # Cleanup must continue using the original store after the default changes.
+    backend.fs.exists.return_value = False
+    staged._cleanup()
+    assert get_backend.call_args.args[0] == "local"
